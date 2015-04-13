@@ -59,11 +59,12 @@
 	
 	/** find a valid font reference, or Apple's APIs will break later */
 	/** undocumented Apple bug: CTFontCreateWithName cannot accept nil input*/
-	CTFontRef font = NULL;
-	if( actualFamily != nil)
-		font = CTFontCreateWithName( (CFStringRef)actualFamily, effectiveFontSize, NULL);
-	if( font == NULL )
-		font = CTFontCreateWithName( (CFStringRef) @"Verdana", effectiveFontSize, NULL); // Spec says to use "whatever default font-family is normal for your system". On iOS, that's Verdana
+    CTFontRef font = NULL;
+    if( [actualFamily isEqualToString:@"Arial"]) {
+        font = CTFontCreateWithName( (CFStringRef)@"ArialMT", effectiveFontSize, NULL); // PostScript name of Arial
+    } else if( actualFamily != nil) {
+        font = CTFontCreateWithName( (CFStringRef)actualFamily, effectiveFontSize, NULL);
+    }
 	
 	/** Convert all whitespace to spaces, and trim leading/trailing (SVG doesn't support leading/trailing whitespace, and doesnt support CR LF etc) */
 	
@@ -130,19 +131,30 @@
     CGFloat ascent = 0;
     CTLineGetTypographicBounds(line, &ascent, NULL, NULL);
     CFRelease(line);
-	CGFloat offsetToConvertSVGOriginToAppleOrigin = -ascent;
-	CGSize fakeSizeToApplyNonTranslatingPartsOfTransform = CGSizeMake( 0, offsetToConvertSVGOriginToAppleOrigin);
-	
-	label.position = CGPointMake( 0,
-								 0 + CGSizeApplyAffineTransform( fakeSizeToApplyNonTranslatingPartsOfTransform, textTransformAbsoluteWithLocalPositionOffset).height);
+//	CGFloat offsetToConvertSVGOriginToAppleOrigin = -ascent;
+//	CGSize fakeSizeToApplyNonTranslatingPartsOfTransform = CGSizeMake( 0, offsetToConvertSVGOriginToAppleOrigin);
+//	
+//	label.position = CGPointMake( 0,
+//								 0 + CGSizeApplyAffineTransform( fakeSizeToApplyNonTranslatingPartsOfTransform, textTransformAbsoluteWithLocalPositionOffset).height);
+//    
+//    NSString *textAnchor = [self cascadedValueForStylableProperty:@"text-anchor"];
+//    if( [@"middle" isEqualToString:textAnchor] )
+//        label.anchorPoint = CGPointMake(0.5, 0.0);
+//    else if( [@"end" isEqualToString:textAnchor] )
+//        label.anchorPoint = CGPointMake(1.0, 0.0);
+//    else
+//        label.anchorPoint = CGPointZero; // WARNING: SVG applies transforms around the top-left as origin, whereas Apple defaults to center as origin, so we tell Apple to work "like SVG" here.
     
-    NSString *textAnchor = [self cascadedValueForStylableProperty:@"text-anchor"];
-    if( [@"middle" isEqualToString:textAnchor] )
-        label.anchorPoint = CGPointMake(0.5, 0.0);
-    else if( [@"end" isEqualToString:textAnchor] )
-        label.anchorPoint = CGPointMake(1.0, 0.0);
-    else
-        label.anchorPoint = CGPointZero; // WARNING: SVG applies transforms around the top-left as origin, whereas Apple defaults to center as origin, so we tell Apple to work "like SVG" here.
+    NSString *anchorStyle = [self cascadedValueForStylableProperty:@"text-anchor"];
+    
+    if ([anchorStyle isEqualToString:@"middle"]) {
+        label.anchorPoint = CGPointMake(0.5, 0.5);
+    }else if ([anchorStyle isEqualToString:@"start"]) {
+        label.anchorPoint = CGPointMake(0, 0.5);
+    } else if ([anchorStyle isEqualToString:@"end"]) {
+        label.anchorPoint = CGPointMake(1, 0.5);
+    }
+
     
 	label.affineTransform = textTransformAbsoluteWithLocalPositionOffset;
 	label.fontSize = effectiveFontSize;
