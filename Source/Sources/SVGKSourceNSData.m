@@ -27,7 +27,7 @@
 	if( copy )
 	{	
 		/** clone bits */
-		[copy setRawData:[self.rawData copy]];
+		[copy setRawData:[[self.rawData copy] autorelease]];
 		
 		/** Finally, manually intialize the input stream, as required by super class */
 		[copy setStream:[NSInputStream inputStreamWithData:((SVGKSourceNSData*)copy).rawData]];
@@ -45,7 +45,7 @@
 	}
 	else
 	{
-		DDLogError(@"Cannot construct a relative link for this SVGKSource; it was created from anonymous NSData with no source URL provided. Source = %@", self);
+		SVGKitLogError(@"Cannot construct a relative link for this SVGKSource; it was created from anonymous NSData with no source URL provided. Source = %@", self);
 		return nil;
 	}
 }

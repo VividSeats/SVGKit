@@ -87,12 +87,12 @@ CGImageRef SVGImageCGImage(AppleNativeImageRef img)
 	NSData *imageData;
 	NSURL* imageURL = [NSURL URLWithString:_href];
 	SVGKSource* effectiveSource = nil;
-	if ([_href hasPrefix:@"http:"] )
+	if ([_href hasPrefix:@"http:"] || [_href hasPrefix:@"https:"] )
 		imageData = [NSData dataWithContentsOfURL:imageURL];
 	else
 	if( [_href hasPrefix:@"data:"])
 	{
-		_href = [_href stringByReplacingOccurrencesOfString:@"\\s+" 
+		self.href = [_href stringByReplacingOccurrencesOfString:@"\\s+"
 												 withString:@""
 													options:NSRegularExpressionSearch
 													  range:NSMakeRange(0, [_href length]) ];
@@ -107,7 +107,7 @@ CGImageRef SVGImageCGImage(AppleNativeImageRef img)
         NSError *error = nil;
 		imageData = [NSData dataWithContentsOfStream:stream initialCapacity:NSUIntegerMax error:&error];
 		if( error )
-			DDLogError(@"[%@] ERROR: unable to read stream from %@ into NSData: %@", [self class], _href, error);
+			SVGKitLogError(@"[%@] ERROR: unable to read stream from %@ into NSData: %@", [self class], _href, error);
 	}
 	
 	/** Now we have some raw bytes, try to load using Apple's image loaders
@@ -124,7 +124,7 @@ CGImageRef SVGImageCGImage(AppleNativeImageRef img)
         
         if( effectiveSource != nil )
         {
-            DDLogInfo(@"Attempting to interpret the image at URL as an embedded SVG link (Apple failed to parse it): %@", _href );
+            SVGKitLogInfo(@"Attempting to interpret the image at URL as an embedded SVG link (Apple failed to parse it): %@", _href );
             if( imageData != nil )
             {
                 /** NB: sources can only be used once; we've already opened the stream for the source
@@ -173,10 +173,7 @@ CGImageRef SVGImageCGImage(AppleNativeImageRef img)
                 // crop the image
                 CGRect cropRect = CGRectMake(0, 0, image.size.width, image.size.height);
                 cropRect = [self clipFrame:cropRect fromRatio:1.0 / ratioOfRatios];
-                
-                CGImageRef croppedRef = CGImageCreateWithImageInRect(imageRef, cropRect);
-                CGImageRelease(imageRef);
-                imageRef = croppedRef;
+                imageRef = CGImageCreateWithImageInRect(imageRef, cropRect);
             }
         }
         

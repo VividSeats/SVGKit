@@ -73,7 +73,7 @@
 	if( pathToFileInBundle == nil
 	   && pathToFileInDocumentsFolder == nil )
 	{
-		DDLogWarn(@"[%@] MISSING FILE (not found in App-bundle, not found in Documents folder), COULD NOT CREATE DOCUMENT: filename = %@, extension = %@", [self class], newName, extension);
+		SVGKitLogWarn(@"[%@] MISSING FILE (not found in App-bundle, not found in Documents folder), COULD NOT CREATE DOCUMENT: filename = %@, extension = %@", [self class], newName, extension);
 		return nil;
 	}
 	
@@ -90,7 +90,7 @@
 	if( copy )
 	{	
 		/** clone bits */
-		[copy setFilePath:[self.filePath copy]];
+		[copy setFilePath:[[self.filePath copy] autorelease]];
 		[copy setWasRelative:self.wasRelative];
 		
 		/** Finally, manually intialize the input stream, as required by super class */

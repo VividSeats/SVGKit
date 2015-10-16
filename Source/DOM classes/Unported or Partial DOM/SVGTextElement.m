@@ -59,13 +59,15 @@
 	
 	/** find a valid font reference, or Apple's APIs will break later */
 	/** undocumented Apple bug: CTFontCreateWithName cannot accept nil input*/
-    CTFontRef font = NULL;
-    if( [actualFamily isEqualToString:@"Arial"]) {
-        font = CTFontCreateWithName( (CFStringRef)@"ArialMT", effectiveFontSize, NULL); // PostScript name of Arial
-    } else if( actualFamily != nil) {
-        font = CTFontCreateWithName( (CFStringRef)actualFamily, effectiveFontSize, NULL);
-    }
-	
+
+	CTFontRef font = NULL;
+	if( actualFamily != nil)
+		font = CTFontCreateWithName( (CFStringRef)actualFamily, effectiveFontSize, NULL);
+	if( font == NULL ) {
+		// Spec says to use "whatever default font-family is normal for your system". Use HelveticaNeue, the default since iOS 7.
+		font = CTFontCreateWithName( (CFStringRef) @"HelveticaNeue", effectiveFontSize, NULL);
+	}
+
 	/** Convert all whitespace to spaces, and trim leading/trailing (SVG doesn't support leading/trailing whitespace, and doesnt support CR LF etc) */
 	
 	NSString* effectiveText = self.textContent; // FIXME: this is a TEMPORARY HACK, UNTIL PROPER PARSING OF <TSPAN> ELEMENTS IS ADDED
@@ -169,7 +171,7 @@
 	/** VERY USEFUL when trying to debug text issues:
 	label.backgroundColor = [UIColor colorWithRed:0.5 green:0 blue:0 alpha:0.5].CGColor;
 	label.borderColor = [UIColor redColor].CGColor;
-	//DEBUG: DDLogVerbose(@"font size %2.1f at %@ ... final frame of layer = %@", effectiveFontSize, NSStringFromCGPoint(transformedOrigin), NSStringFromCGRect(label.frame));
+	//DEBUG: SVGKitLogVerbose(@"font size %2.1f at %@ ... final frame of layer = %@", effectiveFontSize, NSStringFromCGPoint(transformedOrigin), NSStringFromCGRect(label.frame));
 	*/
 	
     return label;

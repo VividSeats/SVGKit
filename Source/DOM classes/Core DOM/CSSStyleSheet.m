@@ -37,7 +37,7 @@
 	NSCharacterSet *whitespaceSet = [NSCharacterSet whitespaceAndNewlineCharacterSet];
 	rule = [rule stringByTrimmingCharactersInSet:whitespaceSet];
 	
-	//             DDLogVerbose(@"A substringie %@", idStyleString);
+	//             SVGKitLogVerbose(@"A substringie %@", idStyleString);
 	
 	NSArray* stringSplitContainer = [rule componentsSeparatedByString:@"{"];
 	if( [stringSplitContainer count] >= 2 ) //not necessary unless using shitty svgs
@@ -76,7 +76,7 @@
 			 NB: you NEED the NSRegularExpressionDotMatchesLineSeparators argument - which Apple DOES NOT HONOUR in NSString - hence have to use NSRegularExpression
 			 */
 			NSError* error;
-			NSRegularExpression* regexp = [NSRegularExpression regularExpressionWithPattern:@"/\\*.*\\*/" options: NSRegularExpressionDotMatchesLineSeparators error:&error];
+			NSRegularExpression* regexp = [NSRegularExpression regularExpressionWithPattern:@"/\\*.*?\\*/" options: NSRegularExpressionDotMatchesLineSeparators error:&error];
 			styleSheetBody = [regexp stringByReplacingMatchesInString:styleSheetBody options:0 range:NSMakeRange(0,styleSheetBody.length) withTemplate:@""];
 			
 			NSArray *classNameAndStyleStrings = [styleSheetBody componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"}"]];
