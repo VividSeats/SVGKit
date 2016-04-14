@@ -187,14 +187,6 @@
             ((SVGElement *) child).viewportElement = viewport;
 }
 
-- (void)dealloc {
-	[_stringValue release];
-	[_identifier release];
-	[xmlbase release];
-	self.className = nil;
-    self.style = nil;
-	[super dealloc];
-}
 
 - (void)loadDefaults {
 	// to be overriden by subclasses
@@ -218,7 +210,7 @@
 	/** CSS styles and classes */
 	if ( [self getAttributeNode:@"style"] )
 	{
-		self.style = [[[CSSStyleDeclaration alloc] init] autorelease];
+		self.style = [[CSSStyleDeclaration alloc] init];
 		self.style.cssText = [self getAttribute:@"style"]; // causes all the LOCALLY EMBEDDED style info to be parsed
 	}
 	if( [self getAttributeNode:@"class"])
@@ -282,7 +274,8 @@
 				return;
 			}
 			NSString* command = [transformString substringToIndex:loc.location];
-			NSArray* parameterStrings = [[transformString substringFromIndex:loc.location+1] componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@", "]];
+            NSString* rawParametersString = [transformString substringFromIndex:loc.location+1];
+			NSArray* parameterStrings = [rawParametersString componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@", "]];
 			
 			/** if you get ", " (comma AND space), Apple sends you an extra 0-length match - "" - between your args. We strip that here */
 			parameterStrings = [parameterStrings filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"length > 0"]];
